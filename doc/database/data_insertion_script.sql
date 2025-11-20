@@ -1,6 +1,6 @@
 USE projet_foodtruck;
 
-INSERT INTO pizzaRoutes (id, name, imageURL, price, pizza_of_the_day, created_at, updated_at) VALUES
+INSERT INTO pizzas (id, name, imageURL, price, pizza_of_the_day, created_at, updated_at) VALUES
 (3, '4 Saisons', '', 17, 0, '2025-09-09 08:26:21', '2025-09-09 08:26:21'),
 (2, 'Margherita', '', 12, 0, '2025-09-09 08:26:21', '2025-09-09 08:26:21'),
 (1, 'Diavola', '', 20, 1, '2025-09-09 08:26:21', '2025-09-09 08:26:21');
