@@ -8,7 +8,6 @@ exports.getAllPizzas = () => {
             p.name,
             p.imageURL,
             p.price,
-            p.pizza_of_the_day,
             p.created_at,
             p.updated_at,
             GROUP_CONCAT(i.name ORDER BY i.name SEPARATOR ', ') AS ingredients
