@@ -2,8 +2,8 @@ DROP DATABASE IF EXISTS projet_foodtruck;
 CREATE DATABASE projet_foodtruck;
 USE projet_foodtruck;
 
-DROP TABLE IF EXISTS pizzas;
-CREATE TABLE pizzas (
+DROP TABLE IF EXISTS pizzaRoutes;
+CREATE TABLE pizzaRoutes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     imageURL VARCHAR(500),
@@ -24,6 +24,6 @@ CREATE TABLE pizza_ingredients (
     pizza_id INT NOT NULL,
     ingredient_id INT NOT NULL,
     PRIMARY KEY (pizza_id, ingredient_id),
-    FOREIGN KEY (pizza_id) REFERENCES pizzas(id) ON DELETE CASCADE,
+    FOREIGN KEY (pizza_id) REFERENCES pizzaRoutes(id) ON DELETE CASCADE,
     FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE CASCADE
 );
