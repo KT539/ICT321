@@ -1,15 +1,11 @@
 const db = require('../config/database.js'); // ton module de connexion MySQL
 
-// with ChatGPT's help
-exports.getAllIngredients = () => {
+
+exports.getAllIngredients = async () => {
     const sql = `
         SELECT * from Ingredients
         ORDER BY id ASC;`;
 
-    return new Promise((resolve, reject) => {
-        db.query(sql, (err, results) => {
-            if (err) return reject(err);
-            resolve(results);
-        });
-    });
+    const [rows] = await db.query(sql);
+    return rows;
 };

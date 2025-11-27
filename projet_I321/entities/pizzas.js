@@ -1,27 +1,19 @@
-const db = require('../config/database.js'); // ton module de connexion MySQL
+const db = require('../config/database.js');
 
-// with ChatGPT's help
-exports.getAllPizzas = () => {
+// used ChatGPT for GROUP_CONCAT syntax
+exports.getAllPizzas = async () => {
     const sql = `
-        SELECT 
-            p.id,
-            p.name,
-            p.imageURL,
-            p.price,
-            p.created_at,
-            p.updated_at,
-            GROUP_CONCAT(i.name ORDER BY i.name SEPARATOR ', ') AS ingredients
-        FROM pizzas p
-        LEFT JOIN pizza_ingredients pi ON p.id = pi.pizza_id
-        LEFT JOIN ingredients i ON pi.ingredient_id = i.id
-        GROUP BY p.id
-        ORDER BY p.id DESC;
+        SELECT pizzas.id,
+               pizzas.name,
+               pizzas.imageURL,
+               pizzas.price,
+               GROUP_CONCAT(ingredients.name SEPARATOR ', ') AS ingredients
+        FROM pizzas
+        LEFT JOIN pizza_ingredients ON pizzas.id = pizza_ingredients.pizza_id
+        LEFT JOIN ingredients ON pizza_ingredients.ingredient_id = ingredients.id
+        GROUP BY pizzas.id
+        ORDER BY pizzas.id ASC;
     `;
-
-    return new Promise((resolve, reject) => {
-        db.query(sql, (err, results) => {
-            if (err) return reject(err);
-            resolve(results);
-        });
-    });
+    const [rows] = await db.query(sql);
+    return rows;
 };
