@@ -8,4 +8,8 @@ exports.getAllIngredients = async () => {
 
     const [rows] = await db.query(sql);
     return rows;
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> feature/SelectOnePizza
