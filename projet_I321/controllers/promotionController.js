@@ -1,8 +1,8 @@
 const { validationResult } = require('express-validator');
-const Ingredients = require('../entities/Ingredients');
+const Promotions = require('../entities/Promotions');
 
 // Post
-exports.createIngredient = async (req, res, next) => {
+exports.createPromotion = async (req, res, next) => {
     try {
         // validation result
         const errors = validationResult(req);
@@ -11,8 +11,8 @@ exports.createIngredient = async (req, res, next) => {
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { name } = req.body;
-        const created = await Ingredients.createIngredient({ name });
+        const { pizza_id, percentage, starting_date, end_date } = req.body;
+        const created = await Promotions.createPromotion({ pizza_id, percentage, starting_date, end_date });
         // 201 Created
         return res.status(201).json(created);
     } catch (err) {
@@ -21,33 +21,32 @@ exports.createIngredient = async (req, res, next) => {
 };
 
 // Get ALL
-exports.getIngredients = async (req, res, next) => {
+exports.getPromotions = async (req, res, next) => {
     try {
-        const ingredients = await Ingredients.getAllIngredients();
+        const promotions = await Promotions.getAllPromotions();
         // 200 OK
-        return res.status(200).json(ingredients);
+        return res.status(200).json(promotions);
     } catch (err) {
         next(err);
     }
 };
 
 // Get by ID
-exports.getOneIngredient = async (req, res, next) => {
+exports.getOnePromotion = async (req, res, next) => {
     try {
         const id = Number(req.params.id);
-        if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid ID'})
+        if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid ID' });
 
-        const ingredient = await Ingredients.getIngredientById(id);
-        if (!ingredient) return res.status(404).json({ error: 'Ingredient not found' });
-
-        return res.status(200).json(ingredient);
+        const promotion = await Promotions.getPromotionById(id);
+        if (!promotion) return res.status(404).json({ error: 'Promotion not found' });
+        return res.status(200).json(promotion);
     } catch (err) {
         next(err);
     }
-}
+};
 
 // Put
-exports.updateIngredient = async (req, res, next) => {
+exports.updatePromotion = async (req, res, next) => {
     try {
         // validation result
         const errors = validationResult(req);
@@ -58,9 +57,9 @@ exports.updateIngredient = async (req, res, next) => {
         const id = Number(req.params.id);
         if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid ID' });
 
-        const { name } = req.body;
-        const updated = await Ingredients.updateIngredient(id, name);
-        if (!updated) return res.status(404).json({ error: 'Ingredient not found' });
+        const { pizza_id, percentage, starting_date, end_date } = req.body;
+        const updated = await Promotions.updatePromotion(id, { pizza_id, percentage, starting_date, end_date });
+        if (!updated) return res.status(404).json({ error: 'Promotion not found' });
 
         return res.status(200).json(updated);
     } catch (err) {
@@ -69,13 +68,13 @@ exports.updateIngredient = async (req, res, next) => {
 };
 
 // Delete
-exports.deleteIngredient = async (req, res, next) => {
+exports.deletePromotion = async (req, res, next) => {
     try {
         const id = Number(req.params.id);
         if (Number.isNaN(id)) return res.status(400).json({error: 'Invalid ID'});
 
-        const deleted = await Ingredients.deleteIngredient(id);
-        if (deleted === 0) return res.status(404).json({error: 'Ingredient not found'});
+        const deleted = await Promotions.deletePromotion(id);
+        if (deleted === 0) return res.status(404).json({error: 'Promotion not found'});
 
         // 204 No Content on successful delete
         return res.status(204).send();
