@@ -1,18 +1,51 @@
+// Project:     Projet_I321, module ICT 321 "Programmer des systèmes distribués"
+// Teacher:     Mr J. Ithurbide
+// Authors:     Kilian Testard & Niels Delafontaine
+// Description: API for a Pizza Foodtruck
+// Date:        2025-12-18
+
+
 const db = require('../config/database.js');
 
 class Pizzas {
 
-    // Post
-    static createPizza({ name, description, imageUrl, price }) {
-        const sql = `INSERT INTO pizzas (name, description, imageUrl, price, created_at, updated_at)
-                 VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))`;
-        const params = [name, description || null, imageUrl || null, price];
-
+    // Post (associations to ingredients Ids made with AI help)
+    static createPizza({ name, description, imageUrl, price, ingredientIds = [] }) {
         return new Promise((resolve, reject) => {
-            db.run(sql, params, function (err) {
-                if (err) return reject(err);
-                // fetch created row
-                Pizzas.getPizzaById(this.lastID).then(resolve).catch(reject);
+            // db.serialize for order of operations
+            db.serialize(() => {
+                const sqlPizza = `INSERT INTO pizzas (name, description, imageUrl, price, created_at, updated_at)
+                             VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))`;
+
+                db.run(sqlPizza, [name, description || null, imageUrl || null, price], function (err) {
+                    if (err) return reject(err);
+
+                    const pizzaId = this.lastID;
+
+                    // if no ingredients, create the pizza without it
+                    if (!ingredientIds || ingredientIds.length === 0) {
+                        return Pizzas.getPizzaById(pizzaId).then(resolve).catch(reject);
+                    }
+
+                    // insert the ingredients (from AI)
+                    const sqlLink = `INSERT INTO pizza_ingredients (pizza_id, ingredient_id) VALUES (?, ?)`;
+                    const stmt = db.prepare(sqlLink);
+
+                    ingredientIds.forEach(ingId => {
+                        stmt.run(pizzaId, ingId);
+                    });
+
+                    stmt.finalize((err) => {
+                        if (err) return reject(err);
+                        Pizzas.getIngredientsByPizzaId(pizzaId)
+                            .then(ingredients => {
+                                return Pizzas.getPizzaById(pizzaId).then(pizza => {
+                                    resolve({ ...pizza, ingredients });
+                                });
+                            })
+                            .catch(reject);
+                    });
+                });
             });
         });
     }
@@ -73,24 +106,46 @@ class Pizzas {
         }
     }
 
-    // Put
-    static updatePizza(id, { name, description, imageUrl, price }) {
-        const sql = `
-        UPDATE pizzas
-        SET name = COALESCE(?, name),
-            description = COALESCE(?, description),
-            imageUrl = COALESCE(?, imageUrl),
-            price = COALESCE(?, price),
-            updated_at = datetime('now')
-        WHERE id = ?
-        `;
-        const params = [name, description, imageUrl, price, id];
-
+    // Put (associations with ingredients Ids made with AI help)
+    static updatePizza(id, { name, description, imageUrl, price, ingredientIds }) {
         return new Promise((resolve, reject) => {
-            db.run(sql, params, function (err) {
-                if (err) return reject(err);
-                if (this.changes === 0) return resolve(null);
-                Pizzas.getPizzaById(id).then(resolve).catch(reject);
+            db.serialize(() => {
+                // update the pizza's basic info
+                const sqlUpdate = `
+                UPDATE pizzas
+                SET name = COALESCE(?, name),
+                    description = COALESCE(?, description),
+                    imageUrl = COALESCE(?, imageUrl),
+                    price = COALESCE(?, price),
+                    updated_at = datetime('now')
+                WHERE id = ?`;
+
+                db.run(sqlUpdate, [name, description, imageUrl, price, id], function (err) {
+                    if (err) return reject(err);
+                    if (this.changes === 0) return resolve(null);
+
+                    // if new ingredients are provided, synchronise
+                    if (ingredientIds !== undefined) {
+                        // delete old links
+                        db.run(`DELETE FROM pizza_ingredients WHERE pizza_id = ?`, [id], (err) => {
+                            if (err) return reject(err);
+
+                            if (ingredientIds.length > 0) {
+                                const stmt = db.prepare(`INSERT INTO pizza_ingredients (pizza_id, ingredient_id) VALUES (?, ?)`);
+                                ingredientIds.forEach(ingId => stmt.run(id, ingId));
+                                stmt.finalize((err) => {
+                                    if (err) return reject(err);
+                                    Pizzas.getPizzaById(id).then(resolve).catch(reject);
+                                });
+                            } else {
+                                Pizzas.getPizzaById(id).then(resolve).catch(reject);
+                            }
+                        });
+                    } else {
+                        // if no ingredientIds in the JSON body, simply return the pizza
+                        Pizzas.getPizzaById(id).then(resolve).catch(reject);
+                    }
+                });
             });
         });
     }

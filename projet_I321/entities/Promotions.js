@@ -1,10 +1,17 @@
+// Project:     Projet_I321, module ICT 321 "Programmer des systèmes distribués"
+// Teacher:     Mr J. Ithurbide
+// Authors:     Kilian Testard & Niels Delafontaine
+// Description: API for a Pizza Foodtruck
+// Date:        2025-12-18
+
+
 const db = require('../config/database.js');
 
 class Promotions {
 
     // Post
     static createPromotion({ pizza_id, percentage, starting_date, end_date }) {
-        const sql = `INSERT INTO pizzas (pizza_id, percentage, starting_date, end_date)
+        const sql = `INSERT INTO promotion (pizza_id, percentage, starting_date, end_date)
                  VALUES (?, ?, ?, ?)`;
         const params = [pizza_id, percentage, starting_date, end_date];
 
@@ -19,7 +26,7 @@ class Promotions {
 
     // Get ALL
     static getAllPromotions() {
-        const sql = `SELECT * FROM promotions ORDER by id DESC`;
+        const sql = `SELECT * FROM promotion ORDER by id DESC`;
         return new Promise((resolve, reject) => {
             db.all(sql, [], (err, rows) => {
                 if (err) return reject(err);
@@ -30,7 +37,7 @@ class Promotions {
 
     // Get by ID
     static getPromotionById(id) {
-        const sql = `SELECT * FROM promotions WHERE id = ?`;
+        const sql = `SELECT * FROM promotion WHERE id = ?`;
         return new Promise((resolve, reject) => {
             db.get(sql, [id], (err, row) => {
                 if (err) return reject(err);
@@ -42,19 +49,22 @@ class Promotions {
     // Put
     static updatePromotion(id, { pizza_id, percentage, starting_date, end_date }) {
         const sql = `
-        UPDATE promotions
-        SET pizza_id = COALESCE(?, pizza_id),
-            percentage = COALESCE(?, percentage),
-            starting_date = COALESCE(?, starting_date),
-            end_date = COALESCE(?, end_date)
-        WHERE id = ?
+            UPDATE promotion
+            SET pizza_id = COALESCE(?, pizza_id),
+                percentage = COALESCE(?, percentage),
+                starting_date = COALESCE(?, starting_date),
+                end_date = COALESCE(?, end_date)
+            WHERE id = ?
         `;
         const params = [pizza_id, percentage, starting_date, end_date, id];
 
         return new Promise((resolve, reject) => {
             db.run(sql, params, function (err) {
                 if (err) return reject(err);
+
+                // if nothing was modified, then the promotion doesn't exist
                 if (this.changes === 0) return resolve(null);
+
                 Promotions.getPromotionById(id).then(resolve).catch(reject);
             });
         });
@@ -62,7 +72,7 @@ class Promotions {
 
     // Delete
     static deletePromotion(id) {
-        const sql = `DELETE FROM promotions WHERE id = ?`;
+        const sql = `DELETE FROM promotion WHERE id = ?`;
         return new Promise((resolve, reject) => {
             db.run(sql, [id], function (err) {
                 if (err) return reject(err);
