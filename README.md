@@ -25,6 +25,7 @@ Niels Delafontaine, Kilian Testard
 ---
 ## **Utilisation de l'API**
 Documentation Swagger disponible après lancement du serveur sur localhost:3000/api-docs
+---
 ![Documentation Swagger]<img width="1569" height="935" alt="Capture d’écran 2025-12-18 121351" src="https://github.com/user-attachments/assets/fb97cc89-fb5b-4666-93e0-3be9145b48e8" />
 
 
