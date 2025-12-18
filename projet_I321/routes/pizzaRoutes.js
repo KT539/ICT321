@@ -111,6 +111,34 @@ const updateValidations = [
 
 /**
  * @openapi
+ * /pizzas/promotions:
+ *   get:
+ *     summary: Liste toutes les pizzas actuellement en promotion avec leurs ingrédients
+ *     tags:
+ *       - Pizzas
+ *     responses:
+ *       200:
+ *         description: Succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/Pizza'
+ *                   - type: object
+ *                     properties:
+ *                       percentage: {type: 'integer'}
+ *                       starting_date: {type: 'string'}
+ *                       end_date: {type: 'string'}
+ *                       ingredients:
+ *                         type: array
+ *                         items:
+ *                           $ref: '#/components/schemas/Ingredient'
+ */
+
+/**
+ * @openapi
  * /pizzas/{id}:
  *   get:
  *     summary: Obtenir une pizza par son ID
@@ -207,6 +235,7 @@ const updateValidations = [
  */
 router.get('/', pizzaController.getPizzas);
 router.get('/full', pizzaController.getAllPizzasWithIngredients);
+router.get('/promotions', pizzaController.getPizzaOnPromotion);
 router.get('/:id', pizzaController.getOnePizza)
 router.get('/:id/ingredients', pizzaController.getIngredientsFromPizza);
 router.post('/', createValidations, pizzaController.createPizza);

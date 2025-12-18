@@ -87,7 +87,7 @@ class Pizzas {
         });
     }
 
-    // Get all pizzas with ingredients, from ChatGPT
+    // Get all pizzas with ingredients, from AI
     static async getAllPizzasWithIngredients() {
         try {
             const pizzas = await this.getAllPizzas();
@@ -104,6 +104,36 @@ class Pizzas {
         } catch (err) {
             throw err;
         }
+    }
+
+    // Get pizzas in active promotion with date(now)
+    static async getPizzaWithPromotions() {
+        const sql = `select pizzas.*, promotion.percentage, promotion.starting_date, promotion.end_date, promotion.id as promotion_id
+        from pizzas
+        INNER JOIN promotion on pizzas.id = promotion.pizza_id
+        WHERE date('now') BETWEEN date(promotion.starting_date) AND date(promotion.end_date)
+        ORDER BY promotion.end_date ASC`;
+
+        return new Promise((resolve, reject) => {
+            db.all(sql, [], async (err, rows) => {
+                if (err) return reject(err);
+
+                try {
+                    const result = await Promise.all(
+                        rows.map(async (row) => {
+                            const ingredients = await this.getIngredientsByPizzaId(row.id);
+                            return {
+                                ...row,
+                                ingredients
+                            };
+                        })
+                    );
+                    resolve(result);
+                } catch (ingErr) {
+                    reject(ingErr);
+                }
+            });
+        });
     }
 
     // Put (associations with ingredients Ids made with AI help)

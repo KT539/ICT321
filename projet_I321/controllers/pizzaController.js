@@ -62,6 +62,7 @@ exports.getAllPizzasWithIngredients = async (req, res, next) => {
     }
 };
 
+// Get ingredients from a pizza
 exports.getIngredientsFromPizza = async (req, res, next) => {
     try {
         const id = Number(req.params.id);
@@ -80,6 +81,16 @@ exports.getIngredientsFromPizza = async (req, res, next) => {
         next(err);
     }
 };
+
+// Get pizzas in promotions
+exports.getPizzaOnPromotion = async (req, res, next) => {
+    try {
+        const pizzas = await Pizzas.getPizzaWithPromotions();
+        return res.status(200).json(pizzas);
+    } catch (err) {
+        next(err);
+    }
+}
 
 // Put
 exports.updatePizza = async (req, res, next) => {
