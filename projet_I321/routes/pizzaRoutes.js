@@ -29,6 +29,182 @@ const updateValidations = [
     body('ingredientIds').optional().isArray().withMessage('ingredientIds must be an array of IDs')
 ];
 
+/**
+ * @openapi
+ * tags:
+ *   - name: Pizzas
+ *     description: Gestion du catalogue de pizzas et de leurs ingrédients
+ */
+
+/**
+ * @openapi
+ * /pizzas:
+ *   get:
+ *     summary: Liste toutes les pizzas (données de base)
+ *     tags:
+ *       - Pizzas
+ *     responses:
+ *       200:
+ *         description: Liste des pizzas récupérée avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Pizza'
+ *   post:
+ *     summary: Créer une nouvelle pizza avec ses ingrédients
+ *     tags:
+ *       - Pizzas
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - price
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               imageUrl:
+ *                 type: string
+ *               ingredientIds:
+ *                 type: array
+ *                 description: Liste des IDs des ingrédients à lier
+ *                 items:
+ *                   type: integer
+ *     responses:
+ *       201:
+ *         description: Pizza créée
+ */
+
+/**
+ * @openapi
+ * /pizzas/full:
+ *   get:
+ *     summary: Liste toutes les pizzas avec le détail de leurs ingrédients
+ *     tags:
+ *       - Pizzas
+ *     responses:
+ *       200:
+ *         description: Succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/Pizza'
+ *                   - type: object
+ *                     properties:
+ *                       ingredients:
+ *                         type: array
+ *                         items:
+ *                           $ref: '#/components/schemas/Ingredient'
+ */
+
+/**
+ * @openapi
+ * /pizzas/{id}:
+ *   get:
+ *     summary: Obtenir une pizza par son ID
+ *     tags:
+ *       - Pizzas
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Détails de la pizza
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Pizza'
+ *       404:
+ *         description: Pizza non trouvée
+ *   put:
+ *     summary: Modifier une pizza et synchroniser ses ingrédients
+ *     tags:
+ *       - Pizzas
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               imageUrl:
+ *                 type: string
+ *               ingredientIds:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *     responses:
+ *       200:
+ *         description: Pizza mise à jour
+ *   delete:
+ *     summary: Supprimer une pizza
+ *     tags:
+ *       - Pizzas
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: Pizza supprimée
+ */
+
+/**
+ * @openapi
+ * /pizzas/{id}/ingredients:
+ *   get:
+ *     summary: Obtenir une pizza avec sa liste d'ingrédients détaillée
+ *     tags:
+ *       - Pizzas
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Pizza et ses ingrédients
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/Pizza'
+ *                 - type: object
+ *                   properties:
+ *                     ingredients:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Ingredient'
+ */
 router.get('/', pizzaController.getPizzas);
 router.get('/full', pizzaController.getAllPizzasWithIngredients);
 router.get('/:id', pizzaController.getOnePizza)

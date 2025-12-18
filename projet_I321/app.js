@@ -9,11 +9,14 @@ require('dotenv').config();
 
 const express = require('express');
 const app = express();
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 
 const mainRouter = require('./routes/router');
 
 // middleware
 app.use(express.json());
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // routes
 app.use('/', mainRouter);

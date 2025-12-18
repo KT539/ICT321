@@ -27,6 +27,131 @@ const updateValidations = [
     body('end_date').optional().isString().notEmpty().withMessage('ending date is required.')
 ]
 
+/**
+ * @openapi
+ * tags:
+ *   - name: Promotions
+ *     description: Gestion des promotions sur les pizzas
+ */
+
+/**
+ * @openapi
+ * /promotions:
+ *   get:
+ *     summary: Liste toutes les promotions
+ *     tags:
+ *       - Promotions
+ *     responses:
+ *       200:
+ *         description: Succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Promotion'
+ *   post:
+ *     summary: Créer une nouvelle promotion
+ *     tags:
+ *       - Promotions
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - pizza_id
+ *               - percentage
+ *               - starting_date
+ *               - end_date
+ *             properties:
+ *               pizza_id:
+ *                 type: integer
+ *               percentage:
+ *                 type: integer
+ *               starting_date:
+ *                 type: string
+ *                 format: date
+ *               end_date:
+ *                 type: string
+ *                 format: date
+ *     responses:
+ *       201:
+ *         description: Promotion créée
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Promotion'
+ */
+
+/**
+ * @openapi
+ * /promotions/{id}:
+ *   get:
+ *     summary: Détails d'une promotion
+ *     tags:
+ *       - Promotions
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Promotion'
+ *       404:
+ *         description: Promotion non trouvée
+ *   put:
+ *     summary: Modifier une promotion (mise à jour partielle acceptée)
+ *     tags:
+ *       - Promotions
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               pizza_id:
+ *                 type: integer
+ *               percentage:
+ *                 type: integer
+ *               starting_date:
+ *                 type: string
+ *               end_date:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Promotion mise à jour
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Promotion'
+ *   delete:
+ *     summary: Supprimer une promotion
+ *     tags:
+ *       - Promotions
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: Promotion supprimée
+ */
 router.get('/', promotionController.getPromotions);
 router.get('/:id', promotionController.getOnePromotion);
 router.post('/', createValidations, promotionController.createPromotion);
