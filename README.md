@@ -17,7 +17,7 @@ Niels Delafontaine, Kilian Testard
 - Se positionner dans le dossier projet_I321 (cd projet_I321).
 - Lancer la commande: npm install.
 - Configurer l'environnement: créer un fichier .env à la racine contenant "DB_FILE=config/db.sqlite"
-  (optionnel, le projet créera un dev.sqlite vide par défaut)
+  (optionnel, le projet créera un fichier dev.sqlite vide par défaut)
 - Initialiser les données de test avec la commande: node config/TestData.js
 - Lancer le serveur avec la commande: npm start.
 
